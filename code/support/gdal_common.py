@@ -1443,7 +1443,7 @@ def project_extent(input_extent, input_osr, output_osr, cellsize=None):
         input_osr (): OSR spatial reference of the input extent
         output_osr (): OSR spatial reference of the desired output
         cellsize (): the cellsize used to calculate the new extent.
-            If None, will attempt to use gdal_common.environmente
+            If None, will attempt to use gdal_common.environment
             This cellsize is in the input spatial reference
 
     Returns:
@@ -1560,6 +1560,10 @@ def extent_raster(output_extent, output_path, output_osr=None,
         output_raster_ds = output_driver.Create(
             output_path, output_cols, output_rows, 1, gdal.GDT_Byte,
             ['COMPRESSED=YES', 'BLOCKSIZE={}'.format(output_bs)])
+    elif output_raster.upper().endswith('.TIF'):
+        output_raster_ds = output_driver.Create(
+            output_raster, output_cols, output_rows, 1, gdal.GDT_Byte,
+            ['COMPRESS=LZW', 'TILED=YES'])
     else:
         output_raster_ds = output_driver.Create(
             output_path, output_cols, output_rows, 1, gdal.GDT_Byte)
@@ -2045,6 +2049,10 @@ def array_to_raster(input_array, output_raster, output_geo=None,
         output_raster_ds = output_driver.Create(
             output_raster, input_cols, input_rows, 1, input_gtype,
             ['COMPRESSED=YES', 'BLOCKSIZE={}'.format(output_bs)])
+    elif output_raster.upper().endswith('.TIF'):
+        output_raster_ds = output_driver.Create(
+            output_raster, input_cols, input_rows, 1, input_gtype,
+            ['COMPRESS=LZW', 'TILED=YES'])
     else:
         output_raster_ds = output_driver.Create(
             output_raster, input_cols, input_rows, 1, input_gtype)
@@ -2273,9 +2281,12 @@ def save_raster_ds(input_raster_ds, output_raster, output_bs=64):
         output_driver.Delete(output_raster)
     if output_raster.upper().endswith('IMG'):
         output_raster_ds = output_driver.Create(
-            output_raster, input_cols, input_rows,
-            input_bands, input_type,
+            output_raster, input_cols, input_rows, input_bands, input_type,
             ['COMPRESSED=YES', 'BLOCKSIZE={}'.format(output_bs)])
+    elif output_raster.upper().endswith('.TIF'):
+        output_raster_ds = output_driver.Create(
+            output_raster, input_cols, input_rows, input_bands, input_gtype,
+            ['COMPRESS=LZW', 'TILED=YES'])
     else:
         output_raster_ds = output_driver.Create(
             output_raster, input_cols, input_rows,
@@ -2925,6 +2936,9 @@ def project_raster_ds(input_ds, output_raster, resampling_type,
         output_ds = output_driver.CreateCopy(
             output_raster, proj_ds, 0,
             ['COMPRESSED=YES', 'BLOCKSIZE={}'.format(output_bs)])
+    elif output_raster.upper().endswith('.TIF'):
+        output_raster_ds = output_driver.CreateCopy(
+            output_raster, proj_ds, 0, ['COMPRESS=LZW', 'TILED=YES'])
     else:
         output_ds = output_driver.CreateCopy(output_raster, proj_ds, 0)
     for band_i in range(output_ds.RasterCount):
@@ -3080,7 +3094,7 @@ def array_lat_lon_func(input_osr, input_cs, input_extent, gcs_cs=0.005,
     # GCS cellsize is in decimal degrees
     # Get the GCS from the input project/spatial reference
     gcs_osr = input_osr.CloneGeogCS()
-    gcs_extent = project_extent(input_extent, input_osr, gcs_osr)
+    gcs_extent = project_extent(input_extent, input_osr, gcs_osr, input_cs)
     # Buffer extent by 4 "cells" then adjust to snap
     gcs_extent.buffer_extent(4 * gcs_cs)
     gcs_extent.adjust_to_snap('EXPAND', 0, 0, gcs_cs)
@@ -3220,6 +3234,10 @@ def build_empty_raster(output_raster, band_cnt=1, output_dtype=None,
         output_ds = output_driver.Create(
             output_raster, output_cols, output_rows, band_cnt, output_gtype,
             ['COMPRESSED=YES', 'BLOCKSIZE={}'.format(output_bs)])
+    elif output_raster.upper().endswith('.TIF'):
+        output_raster_ds = output_driver.Create(
+            output_raster, output_cols, output_rows, band_cnt, output_gtype,
+            ['COMPRESS=LZW', 'TILED=YES'])
     else:
         output_ds = output_driver.Create(
             output_raster, output_cols, output_rows,
@@ -3370,6 +3388,10 @@ def random_sample(array, sample_size, array_space=True,
 #                 output_raster, env.mask_cols, env.mask_rows,
 #                 band_cnt, empty_type,
 #                 ['COMPRESSED=YES', 'BLOCKSIZE={}'.format(output_bs)])
+#         elif output_raster.upper().endswith('.TIF'):
+#             empty_raster_ds = output_driver.Create(
+#                 output_raster, env.mask_cols, env.mask_rows, band_cnt,
+#                 empty_type, ['COMPRESS=LZW', 'TILED=YES'])
 #         else:
 #             empty_raster_ds = output_driver.Create(
 #                 output_raster, env.mask_cols, env.mask_rows,
