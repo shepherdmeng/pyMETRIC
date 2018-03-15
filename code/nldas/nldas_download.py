@@ -4,6 +4,7 @@
 # Python:       2.7, 3.5, 3.6
 #--------------------------------
 
+
 import argparse
 import datetime as dt
 import logging
@@ -15,6 +16,8 @@ import requests
 
 from python_common import date_range, valid_date
 
+class BadCredentialsException(BaseException):
+    pass
 
 def main(username, password, grb_ws=os.getcwd(), landsat_ws=None,
          start_date=None, end_date=None, overwrite_flag=False):
@@ -151,7 +154,13 @@ def main(username, password, grb_ws=os.getcwd(), landsat_ws=None,
             logging.debug('  HTTP Status: {}'.format(r.status_code))
 
             logging.debug('  Beginning download')
-            with (open(save_path, "wb")) as output_f:
+            with open(save_path, "wb") as output_f:
+                if 'Access denied' in r.text:
+                    raise BadCredentialsException('Check EarthData credentials.')
+                if r.text.startswith('<!DOCTYPE html>'):
+                    raise BadCredentialsException(
+                        'Check "NASA GES DISC" is authorized. '
+                        'Instructions: https://disc.gsfc.nasa.gov/earthdata-login')
                 for chunk in r.iter_content(chunk_size=1024 * 1024):
                     if chunk:  # filter out keep-alive new chunks
                         output_f.write(chunk)
