@@ -85,20 +85,47 @@ LC08_043030_20151227
 
 ## Landsat Images
 
-`Note: Landsat tar.gz files will need to be stored in nested separate folders by path, row, and year`
+`Note: Landsat tar.gz files will be stored in nested separate folders by path, row, and year`
 
-The Landsat images can be downloaded using the [Landsat578 tool](https://github.com/dgketchum/Landsat578).  This tool will need to be installed with pip (see the [pyMETRIC README](README)) and a credentials file will need to be generated before using (see the [Landsat 578 README](https://github.com/dgketchum/Landsat578/blob/master/README.md)).
+The Landsat images can be downloaded using the [Landsat578 tool](https://github.com/dgketchum/Landsat578).  
+This tool will need to be installed with pip (see the [pyMETRIC README](README)) and a credentials file will 
+need to be generated before using (see the [Landsat 578 README](https://github.com/dgketchum/Landsat578/blob/master/README.md)).
 
-The Landsat 7 and 8 images from 2015 for the study area can be downloaded using the following commands.  The Landsat images are being downloaded to the non-project landsat folder so that they can be used by other projects, but they could be downloaded directly to the project folder instead.
+`pip install Landsat578`
+
+The Landsat 7 and 8 images from 2015 for the study area can be downloaded using a configuration file that provides
+the location of the clear_scenes.txt, one's USGS credentials, and the root of the project (i.e, D:\pyMETRIC\harney).
+
+To create the configuration file, run the downloader using the `-conf` command with the directory where the configuration
+file will go:
+
+`D:\pyMETRIC> landsat -conf harney`
+
+This will create a template that can be used to easily edit parameters for downloading images, and has fields
+specifically for pyMETRIC users.  Modify it in a text editor so it looks like this:
 ```
-D:\pyMETRIC>landsat --satellite LE7 --start 2015-01-01 --end 2015-12-31 --path 43 --row 30 --output .\landsat --credentials .\landsat\usgs.txt --zipped
-D:\pyMETRIC>landsat --satellite LC8 --start 2015-01-01 --end 2015-12-31 --path 43 --row 30 --output .\landsat --credentials .\landsat\usgs.txt --zipped
+# date format: 'YYYY-MM-DD'
+start:
+end:
+path:
+row:
+latitude:
+longitude:
+output_path: None
+satellite:
+usgs_creds: D:\pyMETRIC\usgs.txt
+# pymetric directory structure: e.g. D:/pyMETRIC/harney/landsat/path/row/year
+# mutually exclusive with output, put None if output is specified, and zipped: True
+# make sure to leave output_path, satellite, path, row, latitude, and logitude empty
+pymetric_root: D:\pyMETRIC\harney
+clear_scenes: D:\pyMETRIC\misc\clear_scenes.txt
+return_list: False
+zipped: True
+max_cloud_percent: 100
 ```
 
-After downloading, you will need to run the following script to rename and move the Landsat tar.gz files into the correct folder structure.  Eventually, the Landsat578 download tool may support writing directly to the target folders.
-```
-D:\pyMETRIC>python landsat\landsat_image_organize.py
-```
+This will create the directory structure pyMETRIC is expecting, e.g., 
+`D:\pyMETRIC\harney\landsat\43\30\2015\LC70430302015101LGN01.tgz`
 
 ## Ancillary Data
 
