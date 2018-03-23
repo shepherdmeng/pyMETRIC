@@ -93,16 +93,21 @@ need to be generated before using (see the [Landsat 578 README](https://github.c
 
 `pip install Landsat578`
 
+Or if you already have it, update it:
+
+`pip install -U Landsat578`
+
 The Landsat 7 and 8 images from 2015 for the study area can be downloaded using a configuration file that provides
 the location of the clear_scenes.txt, one's USGS credentials, and the root of the project (i.e, D:\pyMETRIC\harney).
 
 To create the configuration file, run the downloader using the `-conf` command with the directory where the configuration
 file will go:
 
-`D:\pyMETRIC> landsat -conf harney`
+`D:\pyMETRIC>landsat -conf harney`
 
 This will create a template that can be used to easily edit parameters for downloading images, and has fields
-specifically for pyMETRIC users.  Modify it in a text editor so it looks like this:
+specifically for pyMETRIC users.  Modify it in a text editor so it looks like this (remember to use a `/` in OSx/Linux, 
+rather than Windows `\`):
 ```
 # date format: 'YYYY-MM-DD'
 start:
@@ -124,8 +129,13 @@ zipped: True
 max_cloud_percent: 100
 ```
 
+Then run the same command, but with the configuration file as the argument:
+
+`D:\pyMETRIC>landsat -conf harney\downloader_config.yml`
+
 This will create the directory structure pyMETRIC is expecting, e.g., 
 `D:\pyMETRIC\harney\landsat\43\30\2015\LC70430302015101LGN01.tgz`
+and download the zipped images.
 
 ## Ancillary Data
 
